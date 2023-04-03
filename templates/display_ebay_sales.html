@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Raw Response</h1>
+    <pre>{{ raw_xml }}</pre>
+    <h1>Orders</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">OrderID</th>
+                <th scope="col">Order Date</th>
+                <th scope="col">Total Sale Price</th>
+                <th scope="col">Shipping Charged</th>
+                <th scope="col">Tax</th>
+                <th scope="col">Total Amount Paid</th>
+                <th scope="col">Fees</th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+                <tr>
+                    <td>{{ order.order_id }}</td>
+                    <td>{{ order.order_date }}</td>
+                    <td>{{ order.total_sale_price }}</td>
+                    <td>{{ order.shipping_charged }}</td>
+                    <td>{{ order.tax }}</td>
+                    <td>{{ order.total_amount_paid }}</td>
+                    <td>{{ order.fees }}</td>
+                    <td>
+                        <a href="{{ url_for('display_order_line_items', order_id=order.order_id) }}" class="btn btn-primary">View Line Items</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

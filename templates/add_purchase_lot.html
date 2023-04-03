@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Add Purchase Lot</title>
+  </head>
+  <body>
+    <h1>Add Purchase Lot</h1>
+    <form action="{{ url_for('add_purchase_lot') }}" method="post">
+      <!-- Include CSRF token for security -->
+      {{ form.csrf_token }}
+      {{ form.purchase_date.label }}: {{ form.purchase_date }}<br>
+      {{ form.purchase_venue.label }}: {{ form.purchase_venue }}<br>
+      {{ form.origin_vendor.label }}: {{ form.origin_vendor }}<br>
+      {{ form.lot_sku_id.label }}: {{ form.lot_sku_id }}<br>
+      {{ form.cost.label }}: {{ form.cost }}<br>
+      {{ form.short_description.label }}: {{ form.short_description }}<br>
+      {{ form.main_category.label }}: {{ form.main_category }}<br>
+      {{ form.venue_transaction_number.label }}: {{ form.venue_transaction_number }}<br>
+      <button type="submit">Add Purchase Lot</button>
+    </form>
+  </body>
+</html>

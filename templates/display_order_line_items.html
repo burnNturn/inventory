@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Line Items for Order ID: {{ order_id }}</h1>
+    {% if line_items %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">SKU</th>
+                    <th scope="col">Total Sale Price</th>
+                    <th scope="col">Shipping Charged</th>
+                    <th scope="col">Tax</th>
+                    <th scope="col">total_amount_paid</th>
+                    <th scope="col">Fees</th>
+                    <th scope="col">Shipping Cost</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for line_item in line_items %}
+                    <tr>
+                        <td>{{ line_item.line_item_id }}</td>
+                        <td>{{ line_item.transaction_date }}</td>
+                        <td>{{ line_item.sku }}</td>
+                        <td>{{ line_item.total_sale_price }}</td>
+                        <td>{{ line_item.shipping_charged }}</td>
+                        <td>{{ line_item.tax }}</td>
+                        <td>{{ line_item.total_amount_paid }}</td>
+                        <td>{{ line_item.fees }}</td>
+                        <td>{{ line_item.shipping_cost }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No line items found for the given order ID.</p>
+    {% endif %}
+    <h1> Transactions for Order ID: {{ order_id }}</h1>
+    {% if transactions %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Amount</th>
+                    <th scope="col">Booking_Entry</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transaction in transactions %}
+                    <tr>
+                        <td>{{ transaction.transaction_id }}</td>
+                        <td>{{ transaction.transaction_date }}</td>
+                        <td>{{ transaction.transaction_type }}</td>
+                        <td>{{ transaction.amount }}</td>
+                        <td>{{ transaction.booking_entry }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No line transactions found for the given order ID.</p>
+    {% endif %}
+{% endblock %}
