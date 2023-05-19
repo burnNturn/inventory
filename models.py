@@ -36,7 +36,7 @@ class LineItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     line_item_id = db.Column(db.String, nullable=False, unique=True)
     transaction_date = db.Column(db.Date, nullable=False)
-    sku = db.Column(db.String, nullable=False, default=None)
+    sku = db.Column(db.String, default=None)
     shipping_cost = db.Column(db.Float, nullable=False, default=0.00)
     total_sale_price = db.Column(db.Float, nullable=False, default=0.00)
     shipping_charged = db.Column(db.Float, nullable=False, default=0.00)
@@ -68,11 +68,11 @@ class Transaction(db.Model):
     __tablename__ = 'transactions'
 
     id = db.Column(db.Integer, primary_key=True)
-    transaction_id = db.Column(db.String, nullable=False, unique=True)
+    transaction_id = db.Column(db.String, nullable=False, unique=False)
     line_item_id = db.Column(db.String)
     transaction_date = db.Column(db.DateTime, nullable=False)
     transaction_type = db.Column(db.String, nullable=False)
     amount = db.Column(db.Float, nullable=False, default=0.00)
     booking_entry = db.Column(db.String, nullable=False)
 
-    order_id = db.Column(db.String, db.ForeignKey('orders.order_id'), nullable=False)
+    order_id = db.Column(db.String, db.ForeignKey('orders.order_id'))

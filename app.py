@@ -21,7 +21,7 @@ with app.app_context():
 @app.route('/display_ebay_sales')
 def display_ebay_sales():
     start_date = "2023-03-01T00:00:00.000Z"
-    end_date = "2023-03-02T00:00:00.000Z"
+    end_date = "2023-03-30T00:00:00.000Z"
     # Fetch data from the eBay API
     print("Fetching data from eBay API...")
     raw_xml, order_data, transaction_data = fetch_ebay_data(start_date, end_date)

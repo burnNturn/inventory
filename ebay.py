@@ -112,7 +112,7 @@ def get_ebay_sales(start_date, end_date):
 
 
 
-YOUR_EBAY_AUTH_TOKEN = 'v^1.1#i^1#f^0#p^3#I^3#r^0#t^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'
+YOUR_EBAY_AUTH_TOKEN = 'v^1.1#i^1#f^0#r^0#p^3#I^3#t^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'
 
 EBAY_API_ENDPOINT = 'https://apiz.ebay.com/sell/finances/v1/transaction'
 
@@ -156,40 +156,46 @@ def get_order_transactions(start_date, end_date):
 
         
         for transaction in transactions:
+            print("Got Here")
             order_id = None
-            if hasattr(transaction, 'orderId'):
+            if 'orderId' in transaction:
+                print("Found order id: " + transaction['orderId'])
                 order_id = transaction['orderId']
             else:
-                if hasattr(transaction, 'references'):
+                if 'references' in transaction:
                     references = transaction['references']
                     for reference in references:
                         if reference['referenceType'] == 'ORDER_ID':
+                            print("Found reference order id: " + reference['referenceId'])
                             order_id = reference['referenceId']
             line_item_id = None
-            if hasattr(transaction, 'orderLineItems'):
+            if 'orderLineItems' in transaction:
+                print("Found order line items:")
                 line_items = transaction['orderLineItems']
                 for line_item in line_items:
+                    print("Found line item id: " + line_item['lineItemId'])
                     line_item_id = line_item['lineItemId']
-                    if hasattr(line_item, 'marketplaceFees'):
+                    print("Found line item id: " + line_item_id)
+                    if 'marketplaceFees' in line_item:
                         for fee in line_item['marketplaceFees']:
                             transactions_data.append({
                                 "TransactionId": transaction['transactionId'],
                                 'TransactionType': fee['feeType'],
                                 'CreatedDate': pd.to_datetime(transaction['transactionDate']),
                                 #'CreatedDate': datetime.strptime(transaction['transactionDate'], '%m/%d/%Y %H:%M:%S %p'),
-                                'Amount': fee['value'],
+                                'Amount': fee['amount']['value'],
                                 'LineItemID': line_item_id,
                                 'BookingEntry' : 'DEBIT',
                                 'OrderID': order_id,
                             })
-            if hasattr(transaction, 'ebayCollectAndRemitTaxes'):
+            if 'ebayCollectAndRemitTaxes' in transaction:
                 tax = transaction['ebayCollectAndRemitTaxes']
                 transactions_data.append({
                     "TransactionId": transaction['transactionId'],
                     'TransactionType': 'Tax',
                     'CreatedDate': pd.to_datetime(transaction['transactionDate']),
                     'Amount': tax['value'],
-                    'LineItemID': None,
+                    'LineItemID': line_item_id,
                     'BookingEntry' : 'DEBIT',
                     'OrderID': order_id,
                 })
@@ -198,7 +204,7 @@ def get_order_transactions(start_date, end_date):
                 'TransactionType': transaction['transactionType'],
                 'CreatedDate': pd.to_datetime(transaction['transactionDate']),
                 'Amount': transaction['amount']['value'],
-                'LineItemID': None,
+                'LineItemID': line_item_id,
                 'BookingEntry' : transaction['bookingEntry'],
                 'OrderID': order_id,
             })
