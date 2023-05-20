@@ -25,12 +25,11 @@ def save_ebay_data_to_database(orders_data):
             if not isinstance(line_items, list):
                 line_items = [line_items]
             for line_item in line_items:
+                print("Creating a line item")
                 sku = None
                 if hasattr(line_item.Item, 'SKU'):
                     sku = line_item.Item.SKU
-                amount_paid = 0.00
-                if hasattr(line_item, 'AmountPaid'):
-                    amount_paid = line_item.AmountPaid.value
+                amount_paid = float(line_item.TransactionPrice.value) + float(line_item.ActualShippingCost.value) + float(line_item.Taxes.TaxDetails.TaxAmount.value)
                 line_item_fees = 0.00
                 if hasattr(line_item, 'Item.SellingStatus.FinalValueFee'):
                     line_item_fees = line_item.Item.SellingStatus.FinalValueFee.value
@@ -80,6 +79,7 @@ def save_ebay_data_to_database(orders_data):
     finally:
         db.session.close()    
     for entry in LineItem.query.all():
+        print("LINE ITEM ID:")
         print(entry.line_item_id)
 
 def save_ebay_transactions(transaction_data):
@@ -95,7 +95,7 @@ def save_ebay_transactions(transaction_data):
             except: 
                 order_id = None
             print('Order ID: ', order_id)
-            line_item = LineItem.query.filter_by(line_item_id=line_item_id).first()
+            line_item = LineItem.query.filter_by(line_item_id=transaction['LineItemID']).first()
             try:
                 print('Line Item ID: ', line_item.line_item_id)
             except:
@@ -109,16 +109,18 @@ def save_ebay_transactions(transaction_data):
                                             booking_entry=transaction['BookingEntry'],
                                             order_id=transaction['OrderID'])
             db.session.add(transaction_instance)
-            if line_item:
+            if transaction_instance.line_item_id != None:
                 print("Found a line item")
-                if 'FEE' in transaction['transaction_type']:
+                if 'FEE' in transaction_instance.transaction_type:
                     print("Found a FEE FEE FEE")
                     if transaction_instance.booking_entry == 'DEBIT':
                         order.fees += float(transaction_instance.amount)
-                        line_item.fees += float(transaction_instance.amount)
+                        if line_item:
+                            line_item.fees += float(transaction_instance.amount)
                     elif transaction_instance.booking_entry == 'CREDIT':
                         order.fees -= float(transaction_instance.amount)
-                        line_item.fees -= float(transaction_instance.amount)
+                        if line_item:
+                            line_item.fees -= float(transaction_instance.amount)
             if order:
                 print("Found an order")
                 if transaction['TransactionType'] == 'SHIPPING_LABEL':

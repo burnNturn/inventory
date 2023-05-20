@@ -112,7 +112,7 @@ def get_ebay_sales(start_date, end_date):
 
 
 
-YOUR_EBAY_AUTH_TOKEN = 'v^1.1#i^1#I^3#p^3#r^1#f^0#t^Ul4xMF8wOjA3RjhBRUUyQzY4QjAwOUMyODZGREQzODE5Njk0QTREXzNfMSNFXjI2MA=='
+auth_token = os.getenv("YOUR_EBAY_AUTH_TOKEN")
 
 EBAY_API_ENDPOINT = 'https://apiz.ebay.com/sell/finances/v1/transaction'
 
@@ -123,7 +123,7 @@ def print_request(req: PreparedRequest):
 
 def get_order_transactions(start_date, end_date):
     headers = {
-        'Authorization': f'Bearer {YOUR_EBAY_AUTH_TOKEN}',
+        'Authorization': f'Bearer {auth_token}',
         'X-EBAY-C-MARKETPLACE-ID': 'EBAY_US',
         'Content-Type': 'application/json'
     }
