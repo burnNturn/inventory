@@ -1,7 +1,39 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Line Items for Order ID: {{ order_id }}</h1>
+    <h1>Order Details for Order ID: {{ order.order_id }}</h1>
+    {% if order %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Total Items</th>
+                    <th scope="col">Subtotal</th>
+                    <th scope="col">Shipping Charged</th>
+                    <th scope="col">Total Tax</th>
+                    <th scope="col">Order Total</th>
+                    <th scope="col">Fees Charged</th>
+                    <th scope="col">Shipping Cost</th>
+                    <th scope="col">Net Revenue</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ order.order_date }}</td>
+                    <td>{{ order.quantity }}</td>
+                    <td>{{ order.total_sale_price }}</td>
+                    <td>{{ order.shipping_charged }}</td>
+                    <td>{{ order.tax }}</td>
+                    <td>{{ order.total_amount_paid }}</td>
+                    <td>{{ order.fees }}</td>
+                    <td>{{ order.shipping_cost }}</td>
+                    <td>{{ order.net_revenue }}</td>
+            </tbody>
+        </table>
+    {% else %}
+        <p>No order found for the given order ID.</p>
+    {% endif %}
+    <h1>Line Items for Order ID: {{ order.order_id }}</h1>
     {% if line_items %}
         <table class="table">
             <thead>
@@ -9,6 +41,7 @@
                     <th scope="col">ID</th>
                     <th scope="col">Date</th>
                     <th scope="col">SKU</th>
+                    <th scope="col">Quantity Purchased</th>
                     <th scope="col">Total Sale Price</th>
                     <th scope="col">Shipping Charged</th>
                     <th scope="col">Tax</th>
@@ -23,6 +56,7 @@
                         <td>{{ line_item.line_item_id }}</td>
                         <td>{{ line_item.transaction_date }}</td>
                         <td>{{ line_item.sku }}</td>
+                        <td>{{ line_item.quantity }}</td>
                         <td>{{ line_item.total_sale_price }}</td>
                         <td>{{ line_item.shipping_charged }}</td>
                         <td>{{ line_item.tax }}</td>
@@ -36,7 +70,7 @@
     {% else %}
         <p>No line items found for the given order ID.</p>
     {% endif %}
-    <h1> Transactions for Order ID: {{ order_id }}</h1>
+    <h1> Transactions for Order ID: {{ order.order_id }}</h1>
     {% if transactions %}
         <table class="table">
             <thead>

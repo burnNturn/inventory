@@ -11,16 +11,16 @@ from models import *
 
 load_dotenv()
 
-with app.app_context():
+""" with app.app_context():
     LineItem.query.delete()
     Order.query.delete()
     Transaction.query.delete()
     db.session.commit()
-    db.create_all()
+    db.create_all() """
 
 @app.route('/display_ebay_sales')
 def display_ebay_sales():
-    start_date = "2023-03-01T00:00:00.000Z"
+    start_date = "2023-03-15T00:00:00.000Z"
     end_date = "2023-03-30T00:00:00.000Z"
     # Fetch data from the eBay API
     print("Fetching data from eBay API...")
@@ -41,10 +41,12 @@ def display_ebay_sales():
 
 @app.route('/order_line_items/<order_id>')
 def display_order_line_items(order_id):
+    order = Order.query.filter_by(order_id=order_id).first()
     line_items = LineItem.query.filter_by(order_id=order_id).all()
+    order_items = sum(line_item.quantity for line_item in line_items)
     transactions = Transaction.query.filter_by(order_id=order_id).all()
     print(transactions)
-    return render_template('display_order_line_items.html', line_items=line_items or [], transactions=transactions or [], order_id=order_id)
+    return render_template('display_order_line_items.html', line_items=line_items or [], transactions=transactions or [], order=order, order_items=order_items)
 
 @app.route('/order_transactions/<order_id>')
 def display_order_transactions(order_id):

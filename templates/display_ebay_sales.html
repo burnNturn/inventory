@@ -1,9 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Raw Response</h1>
-    <pre>{{ raw_xml }}</pre>
-    <h1>Orders</h1>
     <table class="table">
         <thead>
             <tr>
@@ -34,4 +31,7 @@
             {% endfor %}
         </tbody>
     </table>
+    <h1>Raw Response</h1>
+    <pre>{{ raw_xml }}</pre>
+    <h1>Orders</h1>
 {% endblock %}
