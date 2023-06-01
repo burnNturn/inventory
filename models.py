@@ -5,6 +5,10 @@ from flask_migrate import Migrate
 from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
+from enum import Enum
+from sqlalchemy import Enum as EnumSQL
+
+
 
 
 app = Flask(__name__)
@@ -17,19 +21,136 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 
+class PurchaseLotType(Enum):
+    ONLINE_ARBITRAGE = 'Online Arbitrage'
+    RETAIL_ARBITRAGE = 'Retail Arbitrage'
+    LIQUIDATION = 'Liquidation'
+    WHOLESALE = 'Wholesale'
+    THRIFT = 'Thrift'
+    OTHER = 'Other'
+
+
+
+
+
+
 class PurchaseLot(db.Model):
+    __tablename__ = 'purchase_lots'
+
+    items = db.relationship('Item', backref='purchase_lot', lazy=True)
+    #items = db.relationship('Item', backref='purchase_lot', lazy=True, foreign_keys='Item.purchase_lot_id')
+    #purchase_lot_id = db.Column(db.Integer, db.ForeignKey('purchase_lots.id', name='fk_item_purchase_lot_id'), nullable=False)
+
     id = db.Column(db.Integer, primary_key=True)
+    lot_identifer = db.Column(db.String(255), nullable=False, unique=True)
     purchase_date = db.Column(db.Date, nullable=False)
     purchase_venue = db.Column(db.String(255), nullable=False)
-    origin_vendor = db.Column(db.String(255), nullable=False)
-    lot_sku_id = db.Column(db.String(255), nullable=False)
-    cost = db.Column(db.Float, nullable=False)
-    short_description = db.Column(db.String(255), nullable=True)
-    main_category = db.Column(db.String(255), nullable=False)
     venue_transaction_number = db.Column(db.String(255), nullable=True)
+    origin_vendor = db.Column(db.String(255), nullable=False)
+    type = db.Column(EnumSQL(PurchaseLotType), nullable=False)
+    cost = db.Column(db.Float, nullable=False)
+    main_category = db.Column(db.String(255), nullable=False)
+    short_description = db.Column(db.String(255), nullable=True)
+    units_received = db.Column(db.Integer, nullable=True)
+    units_sold = db.Column(db.Integer, nullable=False, default=0)
+    subtotal_cost = db.Column(db.Float, nullable=False, default=0.00)
+    purchase_fees = db.Column(db.Float, nullable=False, default=0.00)
+    inbound_shipping_cost = db.Column(db.Float, nullable=False, default=0.00)
+    other_cost = db.Column(db.Float, nullable=False, default=0.00)
+    discounts = db.Column(db.Float, nullable=False, default=0.00)
+    purchase_taxes = db.Column(db.Float, nullable=False, default=0.00)
+    link_to_purchase_page = db.Column(db.String(255), nullable=True)
+    
+    @property
+    def total_purchase_cost(self):
+        return self.subtotal_cost + self.purchase_fees + self.inbound_shipping_cost + self.other_cost + self.discounts + self.purchase_taxes
+    @property
+    def subtotal_sales(self):
+        return sum([(item.total_sale_price * item.quantity) for item in self.items])
+    
+    @property
+    def outbound_shipping_charged(self):
+        return sum([(item.shipping_charged) for item in self.items])
+    @property
+    def sale_taxes(self):
+            return sum([item.tax for item in self.items])
+    @property
+    def gross_revenue(self):
+        return self.subtotal_sales + self.outbound_shipping_charged + self.sale_taxes
+    @property
+    def outbound_shipping_cost(self):
+        return sum([item.shipping_cost for item in self.items])
+    @property
+    def sale_fees(self):
+        return sum([item.fees for item in self.items])
+    @property
+    def net_revenue(self):
+        return self.gross_revenue - self.outbound_shipping_cost - self.sale_fees - self.sale_taxes
+    @property
+    def profit_loss_dol(self):
+        return self.net_revenue - self.total_purchase_cost
+    @property
+    def profit_loss_per(self):
+        return self.profit_loss_dol / self.total_purchase_cost
+    
+    @property
+    def units_remaining(self):
+        return self.units_received - self.units_sold
+
+    
+    
+    
 
     def __repr__(self):
-        return f'<PurchaseLot {self.lot_sku_id}>'
+        return f'<PurchaseLot {self.lot_identifer}>'
+    
+
+class Item(db.Model):
+    __tablename__ = 'items'
+
+    purchase_lot_id = db.Column(db.Integer, db.ForeignKey('purchase_lots.id'), nullable=True)
+    #purchase_lot_id = db.Column(db.Integer, db.ForeignKey('purchase_lots.id', name='fk_line_item_purchase_lot_id'), nullable=True)
+    lineItems = db.relationship('LineItem', backref='item', lazy=True)
+
+    id = db.Column(db.Integer, primary_key=True)
+    sku_id = db.Column(db.String(255), nullable=False, unique=True)
+    title = db.Column(db.String(255), nullable=False)
+    units_received = db.Column(db.Integer, nullable=False, default=0)
+    cost_per_unit = db.Column(db.Float, nullable=False)
+    
+    @property
+    def units_sold(self):
+        return sum([line_item.quantity for line_item in self.lineItems])
+    @property
+    def average_sale_price(self):
+        return sum([line_item.total_sale_price for line_item in self.lineItems]) / self.units_sold
+    @property
+    def shipping_charged(self):
+        return sum([line_item.total_shipping_charged for line_item in self.lineItems])
+    @property
+    def sale_taxes(self):
+        return sum([lineitem.tax for lineitem in self.lineItems])
+    @property
+    def gross_revenue(self):
+        return sum([line_item.total_amount_paid for line_item in self.lineItems])
+    @property
+    def sale_fees(self):
+        return sum([line_item.fees for line_item in self.lineItems])
+    @property
+    def outbound_shipping_cost(self):
+        return sum([line_item.shipping_cost for line_item in self.lineItems])
+    @property
+    def net_revenue(self):
+        return self.revenue - self.shipping_charged - self.sale_fees - self.sale_taxes
+    @property
+    def profit_loss_dol(self):
+        return self.net_revenue - (self.cost_per_unit * self.units_sold)
+    @property
+    def profit_loss_per(self):
+        return self.profit_loss_dol / (self.cost_per_unit * self.units_sold)
+
+    def __repr__(self):
+        return f'<Item {self.sku_id}>'
 
 class LineItem(db.Model):
     __tablename__ = 'line_items'
@@ -48,6 +169,7 @@ class LineItem(db.Model):
 
 
     order_id = db.Column(db.String, db.ForeignKey('orders.order_id'), nullable=False)
+    item_id = db.Column(db.Integer, db.ForeignKey('items.id'), nullable=True)
     #order = db.relationship('Order', back_populates='line_items')
 
 

@@ -11,12 +11,12 @@ from models import *
 
 load_dotenv()
 
-""" with app.app_context():
+with app.app_context():
     LineItem.query.delete()
     Order.query.delete()
     Transaction.query.delete()
     db.session.commit()
-    db.create_all() """
+    db.create_all()
 
 @app.route('/display_ebay_sales')
 def display_ebay_sales():
