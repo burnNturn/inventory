@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Add Item</h1>
+    <form action="{{ url_for('add_item') }}" method="post" class="alternating-columns-form">
+        {{ form.csrf_token }}
+        <div class="form-group">
+            {{ form.purchase_lot.label }}<br>
+            {{ form.purchase_lot }}
+        </div>
+        <div class="form-group">
+            {{ form.sku_id.label }}<br>
+            {{ form.sku_id }}
+        </div>
+        <div class="form-group">
+            {{ form.title.label }}<br>
+            {{ form.title }}
+        </div>
+        <div class="form-group">
+            {{ form.units_received.label }}<br>
+            {{ form.units_received }}
+        </div>
+        <div class="form-group">
+            {{ form.cost_per_unit.label }}<br>
+            {{ form.cost_per_unit }}
+        </div>
+        <div class="form-group"></div>
+        <button type="submit">Add Item</button>
+    </form>
+{% endblock %}

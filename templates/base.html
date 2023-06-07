@@ -8,7 +8,7 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+Knujsl7/1L_dstPt3HV5HzF6Gvk/e3M5fcd8I7PxSfiFy" crossorigin="anonymous">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    
+
     <title>Inventory Tracker</title>
   </head>
   <body>
@@ -16,6 +16,9 @@
       <a href="{{ url_for('index') }}">Home</a>
       <a href="{{ url_for('display_ebay_sales') }}">Display eBay Sales</a>
       <a href="{{ url_for('display_purchase_lots') }}">Display Purchase Lots</a>
+      <a href="{{ url_for('add_purchase_lot') }}">Add Purchase Lots</a>
+      <a href="{{ url_for('add_item') }}">Add Item</a>
+      <a href="{{ url_for('display_items')}}">Display Items</a>
     </div>
     
     <div class="container">

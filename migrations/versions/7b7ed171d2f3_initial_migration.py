@@ -1,8 +1,8 @@
-"""fresh start for all models
+"""Initial migration
 
-Revision ID: f7ccd817cf51
+Revision ID: 7b7ed171d2f3
 Revises: 
-Create Date: 2023-05-31 23:37:37.178648
+Create Date: 2023-06-06 23:58:20.675782
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'f7ccd817cf51'
+revision = '7b7ed171d2f3'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -23,43 +23,50 @@ def upgrade():
     sa.Column('order_id', sa.String(), nullable=False),
     sa.Column('order_date', sa.DateTime(), nullable=False),
     sa.Column('order_venue', sa.String(), nullable=False),
-    sa.Column('_shipping_cost', sa.Float(), nullable=False),
-    sa.Column('_fees', sa.Float(), nullable=False),
+    sa.Column('_shipping_cost', sa.Numeric(precision=10, scale=2), nullable=False),
+    sa.Column('_fees', sa.Numeric(precision=10, scale=2), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('order_id')
     )
     op.create_table('purchase_lots',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('lot_identifer', sa.String(length=255), nullable=False),
+    sa.Column('lot_identifier', sa.String(length=255), nullable=True),
     sa.Column('purchase_date', sa.Date(), nullable=False),
     sa.Column('purchase_venue', sa.String(length=255), nullable=False),
     sa.Column('venue_transaction_number', sa.String(length=255), nullable=True),
     sa.Column('origin_vendor', sa.String(length=255), nullable=False),
     sa.Column('type', sa.Enum('ONLINE_ARBITRAGE', 'RETAIL_ARBITRAGE', 'LIQUIDATION', 'WHOLESALE', 'THRIFT', 'OTHER', name='purchaselottype'), nullable=False),
-    sa.Column('cost', sa.Float(), nullable=False),
     sa.Column('main_category', sa.String(length=255), nullable=False),
     sa.Column('short_description', sa.String(length=255), nullable=True),
     sa.Column('units_received', sa.Integer(), nullable=True),
     sa.Column('units_sold', sa.Integer(), nullable=False),
-    sa.Column('subtotal_cost', sa.Float(), nullable=False),
-    sa.Column('purchase_fees', sa.Float(), nullable=False),
-    sa.Column('inbound_shipping_cost', sa.Float(), nullable=False),
-    sa.Column('other_cost', sa.Float(), nullable=False),
-    sa.Column('discounts', sa.Float(), nullable=False),
-    sa.Column('purchase_taxes', sa.Float(), nullable=False),
+    sa.Column('subtotal_cost', sa.Numeric(precision=10, scale=2), nullable=False),
+    sa.Column('purchase_fees', sa.Numeric(precision=10, scale=2), nullable=False),
+    sa.Column('inbound_shipping_cost', sa.Numeric(precision=10, scale=2), nullable=False),
+    sa.Column('other_cost', sa.Numeric(precision=10, scale=2), nullable=False),
+    sa.Column('discounts', sa.Numeric(precision=10, scale=2), nullable=False),
+    sa.Column('purchase_taxes', sa.Numeric(precision=10, scale=2), nullable=False),
     sa.Column('link_to_purchase_page', sa.String(length=255), nullable=True),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('lot_identifer')
+    sa.UniqueConstraint('lot_identifier')
     )
     op.create_table('items',
     sa.Column('purchase_lot_id', sa.Integer(), nullable=True),
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('sku_id', sa.String(length=255), nullable=False),
+    sa.Column('sku_id', sa.String(length=255), nullable=True),
+    sa.Column('_sku', sa.String(length=255), nullable=False),
     sa.Column('title', sa.String(length=255), nullable=False),
+    sa.Column('upc', sa.String(length=255), nullable=True),
+    sa.Column('ean', sa.String(length=255), nullable=True),
+    sa.Column('isbn', sa.String(length=255), nullable=True),
+    sa.Column('ebay_item_id', sa.String(length=255), nullable=True),
+    sa.Column('amazon_asin', sa.String(length=255), nullable=True),
+    sa.Column('amazon_fnsku', sa.String(length=255), nullable=True),
     sa.Column('units_received', sa.Integer(), nullable=False),
-    sa.Column('cost_per_unit', sa.Float(), nullable=False),
+    sa.Column('cost_per_unit', sa.Numeric(precision=10, scale=2), nullable=False),
     sa.ForeignKeyConstraint(['purchase_lot_id'], ['purchase_lots.id'], ),
     sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('_sku'),
     sa.UniqueConstraint('sku_id')
     )
     op.create_table('transactions',
@@ -68,7 +75,7 @@ def upgrade():
     sa.Column('line_item_id', sa.String(), nullable=True),
     sa.Column('transaction_date', sa.DateTime(), nullable=False),
     sa.Column('transaction_type', sa.String(), nullable=False),
-    sa.Column('amount', sa.Float(), nullable=False),
+    sa.Column('amount', sa.Numeric(precision=10, scale=2), nullable=False),
     sa.Column('booking_entry', sa.String(), nullable=False),
     sa.Column('order_id', sa.String(), nullable=True),
     sa.ForeignKeyConstraint(['order_id'], ['orders.order_id'], ),
@@ -80,12 +87,12 @@ def upgrade():
     sa.Column('transaction_date', sa.Date(), nullable=False),
     sa.Column('sku', sa.String(), nullable=True),
     sa.Column('quantity', sa.Integer(), nullable=False),
-    sa.Column('shipping_cost', sa.Float(), nullable=False),
-    sa.Column('total_sale_price', sa.Float(), nullable=False),
-    sa.Column('shipping_charged', sa.Float(), nullable=False),
-    sa.Column('tax', sa.Float(), nullable=False),
-    sa.Column('total_amount_paid', sa.Float(), nullable=False),
-    sa.Column('fees', sa.Float(), nullable=False),
+    sa.Column('shipping_cost', sa.Numeric(precision=10, scale=2), nullable=False),
+    sa.Column('total_sale_price', sa.Numeric(precision=10, scale=2), nullable=False),
+    sa.Column('shipping_charged', sa.Numeric(precision=10, scale=2), nullable=False),
+    sa.Column('tax', sa.Numeric(precision=10, scale=2), nullable=False),
+    sa.Column('total_amount_paid', sa.Numeric(precision=10, scale=2), nullable=False),
+    sa.Column('fees', sa.Numeric(precision=10, scale=2), nullable=False),
     sa.Column('order_id', sa.String(), nullable=False),
     sa.Column('item_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['item_id'], ['items.id'], ),

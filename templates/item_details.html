@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Item Details</title>
+  </head>
+  <body>
+    <h1>Item Details</h1>
+    <p><strong>SKU ID:</strong> {{ item.sku_id }}</p>
+    <p><strong>Title:</strong> {{ item.title }}</p>
+    <p><strong>Units Received:</strong> {{ item.units_received }}</p>
+    <p><strong>Cost per Unit:</strong> {{ item.cost_per_unit }}</p>
+    <!-- Display other properties and calculated values -->
+  </body>
+</html>

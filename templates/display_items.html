@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Items</h1>
+    <table>
+      <thead>
+        <tr>
+          <th>Purchase Lot</th>
+          <th>SKU</th>
+          <th>Title</th>
+          <th>Units Received</th>
+          <th>Cost_Per_Unit</th>
+          <th>Units Sold</th>
+          <th>Total Sales</th>
+          <th>Average Sale Price</th>
+          <th>Gross Revenue</th>
+          <th>Fees</th>
+          <th>Shipping Cost</th>
+          <th>Net Revenue</th>
+          <th>Profit/Loss $</th>
+          <th>Profit/Loss %</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in items %}
+        <tr>
+          <td>{{ item.purchase_lot.lot_identifier }}</td>
+          <td>{{ item.sku }}</td>
+          <td>{{ item.title }}</td>
+          <td>{{ item.units_received }}</td>
+          <td>{{ item.cost_per_unit }}</td>
+          <td>{{ item.units_sold }}</td>
+          <td>{{ item.total_subtotal_sales }}</td>
+          <td>{{ item.average_sale_price }}</td>
+          <td>{{ item.gross_revenue }}</td>
+          <td>{{ item.sale_fees }}</td>
+          <td>{{ item.outbound_shipping_cost }}</td>
+          <td>{{ item.net_revenue }}</td>
+          <td>{{ item.profit_loss_dol }}</td>
+          <td>{{ item.profit_loss_per }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+{% endblock %}

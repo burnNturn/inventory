@@ -31,7 +31,6 @@ def fetch_ebay_data(start_date, end_date):
     all_transactions = []
 
     for order in orders:
-        print(order.OrderID)
         transactions = get_order_transactions(order.OrderID)
         all_transactions.extend(transactions)
 
@@ -130,7 +129,7 @@ def get_order_transactions(order_id): # start_date, end_date):
     prepared_req = req.prepare()
 
     # Print the prepared request for debugging
-    print_request(prepared_req)
+    #print_request(prepared_req)
 
     response = requests.Session().send(prepared_req)
 
@@ -205,3 +204,26 @@ def get_order_transactions(order_id): # start_date, end_date):
 
         print(f"Error: {response.status_code}, {error_message}")
         return None
+    
+def get_ebay_item(item_id):
+
+    try:
+        response = trading_api.execute('GetItem', {
+            'ItemID': item_id,
+            'DetailLevel': 'ReturnAll',
+        })
+        if response.reply.Ack == 'Success':
+            item = response.reply.Item
+            raw_xml = parseString(response.content).toprettyxml()
+            return raw_xml, item
+        else:
+            print(response.reply.Errors.LongMessage)
+            raw_xml = response.text
+            return raw_xml, []
+
+    except ConnectionError as e:
+        print(f"Error: {e}")
+        raw_xml = response.text
+        return raw_xml, []
+    
+

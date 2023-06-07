@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Purchase Lot Details</title>
+</head>
+<body>
+    <h1>Purchase Lot {{ purchase_lot.lot_identifier }} Details</h1>
+    <div id="lot_profit_loss">
+        <p>Profit/Loss $: {{ purchase_lot.profit_loss_dol }}</p>
+        <p>Profit/Loss %: {{ purchase_lot.profit_loss_per }}</p>
+    </div>
+    <div id="lot_details">
+        <div id="purchase_details">
+            <p>Units Received: {{ purchase_lot.units_received }}</p>
+            <p>Subtotal Cost: {{ purchase_lot.subtotal_cost }}</p>
+            <p>Purchase Fees: {{ purchase_lot.purchase_fees }}</p>
+            <p>Inbound Shipping: {{ purchase_lot.inbound_shipping_cost }}</p>
+            <p>Other Cost: {{ purchase_lot.other_cost }}</p>
+            <p>Taxes: {{ purchase_lot.purchase_taxes }}</p>
+            <p>Discounts: {{ purchase_lot.discounts }}</p>
+            <p>Total Cost: {{ purchase_lot.total_purchase_cost }}</p>
+        </div>
+        <div id="sale_details">
+            <p>Units Sold: {{ purchase_lot.units_sold }}</p>
+            <p>Subtotal Sales: {{ purchase_lot.subtotal_sales }}</p>
+            <p>Shipping Charged: {{ purchase_lot.outbound_shipping_charged }}</p>
+            <p>Taxes: {{ purchase_lot.sales_taxes }}</p>
+            <p>Gross Revenue: {{ purchase_lot.gross_revenue }}</p>
+            <p>Sale Fees: {{ purchase_lot.sale_fees }}</p>
+            <p>Shipping Cost: {{ purchase_lot.outbound_shipping_cost }}</p>
+            <p>Net Revenue: {{ purchase_lot.net_revenue }}</p>
+        </div>
+    </div>
+    <p>Purchase Date: {{ purchase_lot.purchase_date }}</p>
+    <p>Purchase Venue: {{ purchase_lot.purchase_venue }}</p>
+    <!-- Add other details here -->
+</body>
+</html>

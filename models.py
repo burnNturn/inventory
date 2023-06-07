@@ -4,7 +4,10 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
+from decimal import Decimal
+from sqlalchemy import Numeric
 from enum import Enum
 from sqlalchemy import Enum as EnumSQL
 
@@ -42,47 +45,49 @@ class PurchaseLot(db.Model):
     #purchase_lot_id = db.Column(db.Integer, db.ForeignKey('purchase_lots.id', name='fk_item_purchase_lot_id'), nullable=False)
 
     id = db.Column(db.Integer, primary_key=True)
-    lot_identifer = db.Column(db.String(255), nullable=False, unique=True)
-    purchase_date = db.Column(db.Date, nullable=False)
-    purchase_venue = db.Column(db.String(255), nullable=False)
+    lot_identifier = db.Column(db.String(255), nullable=True, unique=True)
+    purchase_date = db.Column(db.Date, nullable=False) #needs to be nullable
+    purchase_venue = db.Column(db.String(255), nullable=False) #needs to be nullable
     venue_transaction_number = db.Column(db.String(255), nullable=True)
-    origin_vendor = db.Column(db.String(255), nullable=False)
-    type = db.Column(EnumSQL(PurchaseLotType), nullable=False)
-    cost = db.Column(db.Float, nullable=False)
-    main_category = db.Column(db.String(255), nullable=False)
+    origin_vendor = db.Column(db.String(255), nullable=False) #needs to be nullable
+    type = db.Column(EnumSQL(PurchaseLotType), nullable=False) #needs to be nullable
+    main_category = db.Column(db.String(255), nullable=False) #needs to be nullable
     short_description = db.Column(db.String(255), nullable=True)
     units_received = db.Column(db.Integer, nullable=True)
     units_sold = db.Column(db.Integer, nullable=False, default=0)
-    subtotal_cost = db.Column(db.Float, nullable=False, default=0.00)
-    purchase_fees = db.Column(db.Float, nullable=False, default=0.00)
-    inbound_shipping_cost = db.Column(db.Float, nullable=False, default=0.00)
-    other_cost = db.Column(db.Float, nullable=False, default=0.00)
-    discounts = db.Column(db.Float, nullable=False, default=0.00)
-    purchase_taxes = db.Column(db.Float, nullable=False, default=0.00)
+    subtotal_cost = db.Column(Numeric(precision=10, scale=2), nullable=False, default=Decimal('0.00'))
+    purchase_fees = db.Column(Numeric(precision=10, scale=2), nullable=False, default=Decimal('0.00'))
+    inbound_shipping_cost = db.Column(Numeric(precision=10, scale=2), nullable=False, default=Decimal('0.00'))
+    other_cost = db.Column(Numeric(precision=10, scale=2), nullable=False, default=Decimal('0.00'))
+    discounts = db.Column(Numeric(precision=10, scale=2), nullable=False, default=Decimal('0.00'))
+    purchase_taxes = db.Column(Numeric(precision=10, scale=2), nullable=False, default=Decimal('0.00'))
     link_to_purchase_page = db.Column(db.String(255), nullable=True)
     
+    @hybrid_property
+    def unit_sold(self):
+        return sum([item.units_sold for item in self.items])
     @property
     def total_purchase_cost(self):
         return self.subtotal_cost + self.purchase_fees + self.inbound_shipping_cost + self.other_cost + self.discounts + self.purchase_taxes
     @property
     def subtotal_sales(self):
-        return sum([(item.total_sale_price * item.quantity) for item in self.items])
+        return sum([(item.total_subtotal_sales * item.units_sold) for item in self.items])
     
     @property
     def outbound_shipping_charged(self):
         return sum([(item.shipping_charged) for item in self.items])
     @property
     def sale_taxes(self):
-            return sum([item.tax for item in self.items])
+            return sum([item.sale_taxes for item in self.items])
     @property
     def gross_revenue(self):
         return self.subtotal_sales + self.outbound_shipping_charged + self.sale_taxes
     @property
     def outbound_shipping_cost(self):
-        return sum([item.shipping_cost for item in self.items])
+        return sum([item.outbound_shipping_cost for item in self.items])
     @property
     def sale_fees(self):
-        return sum([item.fees for item in self.items])
+        return sum([item.sale_fees for item in self.items])
     @property
     def net_revenue(self):
         return self.gross_revenue - self.outbound_shipping_cost - self.sale_fees - self.sale_taxes
@@ -91,6 +96,8 @@ class PurchaseLot(db.Model):
         return self.net_revenue - self.total_purchase_cost
     @property
     def profit_loss_per(self):
+        if self.total_purchase_cost == 0:
+            return Decimal('0.00')
         return self.profit_loss_dol / self.total_purchase_cost
     
     @property
@@ -113,41 +120,94 @@ class Item(db.Model):
     lineItems = db.relationship('LineItem', backref='item', lazy=True)
 
     id = db.Column(db.Integer, primary_key=True)
-    sku_id = db.Column(db.String(255), nullable=False, unique=True)
+    sku_id = db.Column(db.String(255), nullable=True, unique=True)
+    _sku = db.Column(db.String(255), nullable=False, unique=True)
     title = db.Column(db.String(255), nullable=False)
+    upc = db.Column(db.String(255), nullable=True)
+    ean = db.Column(db.String(255), nullable=True)
+    isbn = db.Column(db.String(255), nullable=True)
+    ebay_item_id = db.Column(db.String(255), nullable=True)
+    amazon_asin = db.Column(db.String(255), nullable=True)
+    amazon_fnsku = db.Column(db.String(255), nullable=True)
     units_received = db.Column(db.Integer, nullable=False, default=0)
-    cost_per_unit = db.Column(db.Float, nullable=False)
+    cost_per_unit = db.Column(Numeric(precision=10, scale=2), nullable=False, default=Decimal('0.00'))
     
+    @hybrid_property
+    def sku(self):
+        if self._sku is not None:
+            return self._sku
+        else:
+            if self.purchase_lot_id is not None:
+                self._sku = PurchaseLot.query.filter_by(id=self.purchase_lot_id).first().lot_identifier + '-' + self.sku_id
+            else:
+                self._sku = self.sku_id
+            return self._sku
+
+    @sku.setter
+    def sku(self, sku):
+        self._sku = sku
+
     @property
     def units_sold(self):
-        return sum([line_item.quantity for line_item in self.lineItems])
+        if self.lineItems:
+            return sum([line_item.quantity for line_item in self.lineItems])
+        else:
+            return 0
+    @property
+    def total_subtotal_sales(self):
+        if self.lineItems:
+            return sum([line_item.total_sale_price * line_item.quantity for line_item in self.lineItems])
+        else:
+            return Decimal('0.00')
     @property
     def average_sale_price(self):
-        return sum([line_item.total_sale_price for line_item in self.lineItems]) / self.units_sold
+        if self.lineItems:
+            return (self.total_subtotal_sales / self.units_sold).quantize(Decimal('0.00'))
+        else:
+            return Decimal('0.00')
     @property
     def shipping_charged(self):
-        return sum([line_item.total_shipping_charged for line_item in self.lineItems])
+        if self.lineItems:
+            return sum([line_item.shipping_charged for line_item in self.lineItems])
+        else:
+            return Decimal('0.00')
     @property
     def sale_taxes(self):
-        return sum([lineitem.tax for lineitem in self.lineItems])
+        if self.lineItems:
+            return sum([lineitem.tax for lineitem in self.lineItems])
+        else:
+            return Decimal('0.00')
     @property
     def gross_revenue(self):
-        return sum([line_item.total_amount_paid for line_item in self.lineItems])
+        if self.lineItems:
+            return sum([line_item.total_amount_paid for line_item in self.lineItems])
+        else: 
+            return Decimal('0.00')
     @property
     def sale_fees(self):
-        return sum([line_item.fees for line_item in self.lineItems])
+        if self.lineItems:
+            return sum([line_item.fees for line_item in self.lineItems])
+        else:
+            return Decimal('0.00')
     @property
     def outbound_shipping_cost(self):
-        return sum([line_item.shipping_cost for line_item in self.lineItems])
+        if self.lineItems:
+            return sum([line_item.shipping_cost for line_item in self.lineItems])
+        else:
+            return Decimal('0.00')
     @property
     def net_revenue(self):
-        return self.revenue - self.shipping_charged - self.sale_fees - self.sale_taxes
+        return self.gross_revenue - self.outbound_shipping_cost - self.sale_fees - self.sale_taxes
     @property
     def profit_loss_dol(self):
-        return self.net_revenue - (self.cost_per_unit * self.units_sold)
+        return (self.net_revenue - (self.cost_per_unit * self.units_sold)).quantize(Decimal('0.00'))
     @property
     def profit_loss_per(self):
-        return self.profit_loss_dol / (self.cost_per_unit * self.units_sold)
+        if (self.cost_per_unit * self.units_sold)!= 0:
+            return (self.profit_loss_dol / (self.cost_per_unit * self.units_sold)).quantize(Decimal('0.00'))
+        else:
+            return Decimal('0.00')
+
 
     def __repr__(self):
         return f'<Item {self.sku_id}>'
@@ -160,12 +220,12 @@ class LineItem(db.Model):
     transaction_date = db.Column(db.Date, nullable=False)
     sku = db.Column(db.String, default=None)
     quantity = db.Column(db.Integer, nullable=False)
-    shipping_cost = db.Column(db.Float, nullable=False, default=0.00)
-    total_sale_price = db.Column(db.Float, nullable=False, default=0.00)
-    shipping_charged = db.Column(db.Float, nullable=False, default=0.00)
-    tax = db.Column(db.Float, nullable=False, default=0.00)
-    total_amount_paid = db.Column(db.Float, nullable=False, default=0.00)
-    fees = db.Column(db.Float, nullable=False, default=0.00)
+    shipping_cost = db.Column(Numeric(precision=10, scale=2), nullable=False, default=Decimal('0.00'))
+    total_sale_price = db.Column(Numeric(precision=10, scale=2), nullable=False, default=Decimal('0.00'))
+    shipping_charged = db.Column(Numeric(precision=10, scale=2), nullable=False, default=Decimal('0.00'))
+    tax = db.Column(Numeric(precision=10, scale=2), nullable=False, default=Decimal('0.00'))
+    total_amount_paid = db.Column(Numeric(precision=10, scale=2), nullable=False, default=Decimal('0.00'))
+    fees = db.Column(Numeric(precision=10, scale=2), nullable=False, default=Decimal('0.00'))
 
 
     order_id = db.Column(db.String, db.ForeignKey('orders.order_id'), nullable=False)
@@ -181,8 +241,8 @@ class Order(db.Model):
     order_id = db.Column(db.String, nullable=False, unique=True)
     order_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     order_venue = db.Column(db.String, nullable=False)
-    _shipping_cost = db.Column(db.Float, nullable=False, default=0.00)
-    _fees = db.Column(db.Float, nullable=False, default=0.00)
+    _shipping_cost = db.Column(Numeric(precision=10, scale=2), nullable=False, default=Decimal('0.00'))
+    _fees = db.Column(Numeric(precision=10, scale=2), nullable=False, default=Decimal('0.00'))
 
     @property
     def shipping_cost(self):
@@ -194,14 +254,13 @@ class Order(db.Model):
         self.update_line_item_shipping_cost()
 
     def update_line_item_shipping_cost(self):
-        print("GOT HERE!!!!!!!!!!!!!!!!!!")
         line_items = LineItem.query.filter_by(order_id=self.order_id).all()
         if self.quantity > 0:
-            ship_cost = self._shipping_cost / self.quantity
+            ship_cost = (self._shipping_cost / self.quantity).quantize(Decimal('0.00'))
         else:
-            ship_cost = 0.00
+            ship_cost = Decimal('0.00')
         for line_item in line_items:
-            line_item.shipping_cost = ship_cost * line_item.quantity
+            line_item.shipping_cost = (ship_cost * line_item.quantity).quantize(Decimal('0.00'))
         db.session.commit()
 
     @property
@@ -210,7 +269,7 @@ class Order(db.Model):
 
     @fees.setter
     def fees(self, fees):
-        self._fees = fees
+        self._fees = Decimal(fees)
         self.update_line_item_fees()
 
     def update_line_item_fees(self):
@@ -219,7 +278,7 @@ class Order(db.Model):
             if line_item.total_amount_paid != 0 and self.total_amount_paid != 0:
                 line_item.fees = self._fees / ((self.total_amount_paid) / line_item.total_amount_paid)
             else:
-                line_item.fees = 0.00
+                line_item.fees = Decimal('0.00')
         db.session.commit()
     
     @property
@@ -227,7 +286,7 @@ class Order(db.Model):
         return sum([line_item.quantity for line_item in self.lineItems])
     @property
     def total_sale_price(self):
-        return sum([(line_item.total_sale_price * line_item.quantity) for line_item in self.lineItems])
+        return (sum([(line_item.total_sale_price * line_item.quantity) for line_item in self.lineItems])).quantize(Decimal('0.00'))
     @property
     def shipping_charged(self):
         return sum([line_item.shipping_charged for line_item in self.lineItems])
@@ -253,7 +312,7 @@ class Transaction(db.Model):
     line_item_id = db.Column(db.String)
     transaction_date = db.Column(db.DateTime, nullable=False)
     transaction_type = db.Column(db.String, nullable=False)
-    amount = db.Column(db.Float, nullable=False, default=0.00)
+    amount = db.Column(Numeric(precision=10, scale=2), nullable=False, default=Decimal('0.00'))
     booking_entry = db.Column(db.String, nullable=False)
 
     order_id = db.Column(db.String, db.ForeignKey('orders.order_id'))

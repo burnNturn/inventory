@@ -1,25 +1,74 @@
+{% extends "base.html" %}
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <title>Add Purchase Lot</title>
-  </head>
-  <body>
+{% block content %}
     <h1>Add Purchase Lot</h1>
-    <form action="{{ url_for('add_purchase_lot') }}" method="post">
+    <form action="{{ url_for('add_purchase_lot') }}" method="post" class="alternating-columns-form">
       <!-- Include CSRF token for security -->
       {{ form.csrf_token }}
-      {{ form.purchase_date.label }}: {{ form.purchase_date }}<br>
-      {{ form.purchase_venue.label }}: {{ form.purchase_venue }}<br>
-      {{ form.origin_vendor.label }}: {{ form.origin_vendor }}<br>
-      {{ form.lot_sku_id.label }}: {{ form.lot_sku_id }}<br>
-      {{ form.cost.label }}: {{ form.cost }}<br>
-      {{ form.short_description.label }}: {{ form.short_description }}<br>
-      {{ form.main_category.label }}: {{ form.main_category }}<br>
-      {{ form.venue_transaction_number.label }}: {{ form.venue_transaction_number }}<br>
+      <div class="form-group">
+        {{ form.lot_identifier.label }}<br>
+        {{ form.lot_identifier }}
+      </div>
+      <div class="form-group">
+        {{ form.purchase_date.label }}<br>
+        {{ form.purchase_date }}
+      </div>
+      <div class="form-group">
+        {{ form.purchase_venue.label }}<br>
+        {{ form.purchase_venue }}
+      </div>
+      <div class="form-group">
+        {{ form.venue_transaction_number.label }}<br>
+        {{ form.venue_transaction_number }}
+      </div>
+      <div class="form-group">
+        {{ form.origin_vendor.label }}<br>
+        {{ form.origin_vendor }}
+      </div>
+      <div class="form-group">
+        {{ form.type.label }}<br>
+        {{ form.type }}
+      </div>
+      <div class="form-group">
+        {{ form.main_category.label }}<br>
+        {{ form.main_category }}
+      </div>
+      <div class="form-group">
+        {{ form.short_description.label }}<br>
+        {{ form.short_description }}
+      </div>
+      <div class="form-group">
+        {{ form.units_received.label }}<br>
+        {{ form.units_received }}
+      </div>
+      <div class="form-group">
+        {{ form.subtotal_cost.label }}<br>
+        {{ form.subtotal_cost }}
+      </div>
+      <div class="form-group">
+        {{ form.purchase_fees.label }}<br>
+        {{ form.purchase_fees }}
+      </div>
+      <div class="form-group">
+        {{ form.inbound_shipping_cost.label }}<br>
+        {{ form.inbound_shipping_cost }}
+      </div>
+      <div class="form-group">
+        {{ form.other_cost.label }}<br>
+        {{ form.other_cost }}
+      </div>
+      <div class="form-group">
+        {{ form.discounts.label }}<br>
+        {{ form.discounts }}
+      </div>
+      <div class="form-group">
+        {{ form.purchase_taxes.label }}<br>
+        {{ form.purchase_taxes }}
+      </div>
+      <div class="form-group">
+        {{ form.link_to_purchase_page.label }}<br>
+        {{ form.link_to_purchase_page }}
+      </div>
       <button type="submit">Add Purchase Lot</button>
     </form>
-  </body>
-</html>
+{% endblock %}

@@ -55,3 +55,26 @@ table th, table td {
     cursor: pointer;
 }
 
+.alternating-columns-form {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  .form-group {
+    flex: 0 0 50%;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  .form-group input,
+  .form-group select {
+    width: 100%;
+    padding: 5px;
+    box-sizing: border-box;
+  }
+

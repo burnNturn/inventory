@@ -1,39 +1,47 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <title>Display Purchase Lots</title>
-  </head>
-  <body>
+{% extends "base.html" %}
+
+{% block content %}
     <h1>Display Purchase Lots</h1>
     <table>
       <thead>
         <tr>
-            <th>Purchase Date</th>
-            <th>Purchase Venue</th>
-            <th>Origin Vendor</th>
-            <th>Lot SKU ID</th>
-            <th>Cost</th>
-            <th>Short Description
-            <th>Main Category</th>
-            <th>Venue Transaction Number</th>
+          <th>Lot Identifier</th>
+          <th>Purchase Date</th>
+          <th>Purchase Venue</th>
+          <th>Origin Vendor</th>
+          <th>Type</th>
+          <th>Main Category</th>
+          <th>Units Received</th>
+          <th>Cost</th>
+          <th>Total Cost</th>
+          <th>Units Sold</th>
+          <th>Gross Revenue</th>
+          <th>Net Revenue</th>
+          <th>Profit/Loss $</th>
+          <th>Profit/Loss %</th>
+          <th>Purchase Link</th>
         </tr>
     </thead>
     <tbody>
         {% for lot in purchase_lots %}
         <tr>
+          <td>{{ lot.lot_identifier }}</td>
           <td>{{ lot.purchase_date }}</td>
           <td>{{ lot.purchase_venue }}</td>
           <td>{{ lot.origin_vendor }}</td>
-          <td>{{ lot.lot_sku_id }}</td>
-          <td>{{ lot.cost }}</td>
-          <td>{{ lot.short_description }}</td>
+          <td>{{ lot.type }}</td>
           <td>{{ lot.main_category }}</td>
-          <td>{{ lot.venue_transaction_number }}</td>
+          <td>{{ lot.units_received }}</td>
+          <td>{{ lot.subtotal_cost }}</td>
+          <td>{{ lot.total_purchase_cost }}</td>
+          <td>{{ lot.unit_sold }}</td>
+          <td>{{ lot.gross_revenue }}</td>
+          <td>{{ lot.net_revenue }}</td>
+          <td>{{ lot.profit_loss_dol }}</td>
+          <td>{{ lot.profit_loss_per }}</td>
+          <td>{{ lot.link_to_purchase_page }}</td>
         </tr>
         {% endfor %}
     </tbody>
     </table>
-</body>
-</html>
+{% endblock %}

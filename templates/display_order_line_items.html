@@ -55,7 +55,7 @@
                     <tr>
                         <td>{{ line_item.line_item_id }}</td>
                         <td>{{ line_item.transaction_date }}</td>
-                        <td>{{ line_item.sku }}</td>
+                        <td><a href="{{ url_for('item_details', item_id=line_item.item_id) }}">{{ line_item.sku }}</a></td>
                         <td>{{ line_item.quantity }}</td>
                         <td>{{ line_item.total_sale_price }}</td>
                         <td>{{ line_item.shipping_charged }}</td>
